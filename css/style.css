@@ -1,0 +1,482 @@
+/* ==========================================================================
+   Shrestha — portfolio
+   --------------------------------------------------------------------------
+   SCALING: the layout is drawn at 90rem wide. All sizes are in `rem`, where
+   1rem = 16 design-px at 1440 (so 0.0625rem at 1440 = 0.0625rem). <html> font-size
+   is set to (viewport width / 90) by js/main.js (with a pure-CSS fallback
+   below), so the whole page scales proportionally and stays pixel-faithful.
+   Mobile (<= 51.25rem) switches to a 24.375rem-wide design with the same system.
+
+   FONTS: Roman Avenue  -> hero rotating word + "shreyy.work"
+          Transcity     -> section headings, hobby captions, playground title
+          DM Sans 400/700 -> everything else
+   ========================================================================== */
+
+@font-face{font-family:'DM Sans';font-weight:400;font-style:normal;font-display:swap;src:url(../assets/fonts/DMSans-400.woff2) format('woff2')}
+@font-face{font-family:'DM Sans';font-weight:700;font-style:normal;font-display:swap;src:url(../assets/fonts/DMSans-700.woff2) format('woff2')}
+@font-face{font-family:'Transcity';font-weight:400;font-style:normal;font-display:swap;src:url(../assets/fonts/Transcity-DEMO.otf) format('opentype')}
+@font-face{font-family:'Cat Tail';font-weight:400;font-style:normal;font-display:swap;src:url(../assets/fonts/CatTail.woff2) format('woff2');unicode-range:U+0283}
+@font-face{font-family:'Roman Avenue';font-weight:400;font-style:normal;font-display:swap;src:url(../assets/fonts/RomanAvenue-Regular.otf) format('opentype')}
+
+:root{
+  --white:#f8f8ff;
+  --dim:#191919;
+  --blue:#2aa1e0;
+  --dot:#1f2729;
+  --grid:5.16406rem;
+  --ff-body:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --ff-tc:'Transcity','Roman Avenue',Georgia,serif;
+  --ff-ra:'Roman Avenue',Georgia,serif;
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+}
+
+/* fallback scaling (JS refines it using the exact scrollbar-free width) */
+html{font-size:calc(100vw / 90);background:#000;-webkit-text-size-adjust:100%}
+@media (min-width:1921px){html{font-size:21.3333px}}
+
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;color:var(--white);
+  font-family:var(--ff-body);font-weight:400;font-size:1.25rem;line-height:1.3;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
+  overflow-x:clip;
+  /* dotted grid — one uniform lattice for the whole page */
+  background-color:#000;
+  background-image:radial-gradient(circle at center,var(--dot) 0,var(--dot) 0.1rem,rgba(31,39,41,0) 0.14375rem);
+  background-size:var(--grid) var(--grid);
+  background-position:1.07438rem 2.13687rem;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p,figure,ul{margin:0;padding:0}
+b{font-weight:700}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:0.125rem solid var(--blue);outline-offset:0.1875rem}
+
+/* ── cursor glow on the grid ───────────────────────────────────────────────
+   The glow lives INSIDE the page (not fixed), so it scrolls natively with the
+   grid. Its dots use the exact same lattice/offset as the body background, so
+   they always sit precisely on top of the base dots (no doubling, no lag).
+   --mx/--my are PAGE coordinates set by JS on mouse move only.            */
+body{position:relative}
+.glow{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .5s ease;
+  --mx:-62.4375rem;--my:-62.4375rem}
+.glow.is-on{opacity:1}
+.glow__dots,.glow__halo{position:absolute;width:35rem;height:35rem;left:calc(var(--mx) - 17.5rem);top:calc(var(--my) - 17.5rem)}
+.glow__dots{
+  background-image:radial-gradient(circle at center,#a9d8ee 0,#7dc3e4 0.10625rem,rgba(125,195,228,0) 0.18125rem);
+  background-size:var(--grid) var(--grid);
+  background-position:calc(1.07438rem - (var(--mx) - 17.5rem)) calc(2.13687rem - (var(--my) - 17.5rem));
+  -webkit-mask-image:radial-gradient(circle 15.625rem at center,#000 0%,rgba(0,0,0,.55) 40%,transparent 100%);
+          mask-image:radial-gradient(circle 15.625rem at center,#000 0%,rgba(0,0,0,.55) 40%,transparent 100%)}
+.glow__halo{background:radial-gradient(circle 17.5rem at center,rgba(110,175,205,.10) 0%,rgba(110,175,205,.045) 45%,transparent 100%)}
+
+.zone,.contact{position:relative;z-index:1}
+.frame{position:relative;width:100%;max-width:120rem;margin:0 auto;height:100%}
+/* the design frame is exactly 1440 design-px (= 90rem) */
+.frame{width:90rem;max-width:none}
+
+/* ── glass ─────────────────────────────────────────────────────────────── */
+.glass{
+  background:rgba(64,64,66,.78);          /* = rgb(50,50,51) over black like the design, but stays readable over bright artwork */
+  border:0.0625rem solid rgba(255,255,255,.13);
+  box-shadow:inset 0 0.0625rem 0 rgba(255,255,255,.34),inset 0 -0.0625rem 0 rgba(255,255,255,.12),inset 0 0 0.875rem rgba(255,255,255,.07),0 0.625rem 1.875rem -0.625rem rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(1rem) saturate(150%);backdrop-filter:blur(1rem) saturate(150%);
+}
+/* Refraction: Chromium/Edge/Chrome only (class added by js/main.js). The SVG filters in index.html bend whatever is
+   behind the glass near its rim; a light blur keeps text behind it from fighting the labels.                         */
+.has-refract [data-rf=wide]{-webkit-backdrop-filter:url(#rf-wide) blur(0.1875rem) saturate(1.7) brightness(.93);backdrop-filter:url(#rf-wide) blur(0.1875rem) saturate(1.7) brightness(.93)}
+.has-refract [data-rf=btn]{-webkit-backdrop-filter:url(#rf-btn) blur(0.1875rem) saturate(1.7) brightness(.93);backdrop-filter:url(#rf-btn) blur(0.1875rem) saturate(1.7) brightness(.93)}
+.has-refract [data-rf=box]{-webkit-backdrop-filter:url(#rf-box) blur(0.1875rem) saturate(1.7) brightness(.93);backdrop-filter:url(#rf-box) blur(0.1875rem) saturate(1.7) brightness(.93)}
+.btn{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;color:var(--white);
+  font-size:1.25rem;line-height:1;border-radius:62.4375rem;transition:background .25s ease,transform .25s var(--ease-out)}
+.btn svg{width:0.9375rem;height:0.9375rem;flex:none}
+.btn:active{transform:scale(.97)}
+/* SVG buttons (Resume, See more projects, LinkedIn): same glass + refraction as "Back to top" (class `glass` + data-rf, see above).
+   The SVG in assets/img/buttons/ only draws the label + arrow; the glass is the button body. The button is exactly 48px
+   (3rem) tall, border included: --ar = the artwork's width / 48 (set inline on each button) and the inline <svg> is pulled
+   out over the 1px glass border so the label sits exactly where it does in your artwork. The label is split into letters
+   (.sb-in) so it rolls on hover like every other label (js/main.js, buildSvgRoll).                                       */
+.svgbtn{position:relative;display:block;flex:none;height:3rem;width:calc(3rem * var(--ar));border-radius:62.4375rem;transition:transform .25s var(--ease-out)}
+.svgbtn__art{position:absolute;left:-0.0625rem;top:-0.0625rem;display:block;height:3rem;width:calc(3rem * var(--ar));pointer-events:none;user-select:none;-webkit-user-select:none}
+.sb-in{will-change:transform}   /* one letter = 2 identical copies stacked 26 units apart; js/main.js slides it up (same roll as the text buttons) */
+.svgbtn:active{transform:scale(.97)}
+.svgbtn:focus-visible{outline:0.125rem solid rgba(255,255,255,.8);outline-offset:0.1875rem}
+
+/* ── sticky zone: nav + resume stay fixed from hero → playground only ──── */
+.rail{position:absolute;left:0;right:0;top:0;bottom:0;z-index:60;pointer-events:none}
+.stick{position:sticky;z-index:60;display:flex;pointer-events:none}
+.rail{transition:opacity .35s ease,visibility 0s}
+.rail.is-off{opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
+.rail.is-off .stick > *{pointer-events:none}
+.stick > *{pointer-events:auto}
+.stick--resume{top:calc(100vh - 8.3125rem);height:3rem;justify-content:flex-end;
+  padding-right:calc((100% - 90rem) / 2 + 5.75rem)}
+
+/* ── Top panel ─────────────────────────────────────────────────────────────────────────────────────────
+   Four stacked FIXED layers inside .zone (they must share the page's blending group, which is why nothing here
+   is nested in a sticky/z-indexed wrapper):
+     1 glass  – blur + refraction of whatever is behind (no fill)
+     2 ink    – the real links; mix-blend-mode:difference makes the white labels a "negative" of the glass behind them
+     3 tint   – the grey glass colour, blended with `screen` so it lifts black to rgb(50,50,51) like the design but never
+                dims the labels, and white glass stays white (labels go dark on it)
+     4 avatar – normal blending (a photo must not be inverted)
+   --navw / --dpx / --dpy are measured by js/main.js so the layers line up to the pixel.                       */
+:root{--nav-top:4rem;--nav-h:3.75rem;--navw:36.5rem;--dpx:43.5rem;--dpy:4.375rem;--nav-sat:.3}   /* --nav-sat: colour kept in the glass behind the labels (0 = grey, 1 = natural). Lower = more neutral labels. */
+.navfx{position:fixed;margin:0;padding:0;list-style:none;opacity:1;transition:opacity .35s ease,visibility 0s}
+body.nav-off .navfx{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s ease,visibility 0s linear .35s}
+.navfx--glass,.navfx--tint{top:var(--nav-top);left:calc(50% - var(--navw) / 2);height:var(--nav-h)}
+.navfx--ink{top:var(--nav-top);left:calc(50% - var(--navw) / 2 + 0.0625rem);height:var(--nav-h)}
+.navfx--glass,.navfx--tint{width:var(--navw);border-radius:calc(var(--nav-h) / 2);pointer-events:none}
+.navfx--glass{z-index:200;-webkit-backdrop-filter:blur(1rem) saturate(var(--nav-sat));backdrop-filter:blur(1rem) saturate(var(--nav-sat))}
+.has-refract .navfx--glass[data-rf]{-webkit-backdrop-filter:url(#rf-wide) blur(0.1875rem) saturate(var(--nav-sat));backdrop-filter:url(#rf-wide) blur(0.1875rem) saturate(var(--nav-sat))}
+.navfx--ink{z-index:210;display:flex;align-items:center;width:max-content;padding:0 2.125rem 0 2.3125rem;gap:2.65625rem;color:var(--white);mix-blend-mode:difference}
+.navfx--tint{z-index:220;mix-blend-mode:screen;background:rgb(50,50,51);border:0.0625rem solid rgba(255,255,255,.13);
+  box-shadow:inset 0 0.0625rem 0 rgba(255,255,255,.34),inset 0 -0.0625rem 0 rgba(255,255,255,.12),inset 0 0 0.875rem rgba(255,255,255,.07)}
+.navfx--dp{z-index:230;left:var(--dpx);top:var(--dpy)}
+.nav__link{display:inline-flex;align-items:center;font-size:1.25rem;line-height:1;color:var(--white);white-space:nowrap;
+  transition:opacity .2s ease}
+.nav__dp{display:block;width:3rem;height:3rem;border-radius:50%;overflow:hidden;flex:none;margin:0;transition:transform .3s var(--ease-out)}
+.nav__dp--slot{margin:0 -0.09375rem}
+.nav__dp:hover{transform:scale(1.06)}
+.nav__dp--slot:hover{transform:none}
+.nav__dp img{width:100%;height:100%;object-fit:cover}
+.nav__social{gap:0.75rem;margin-left:-0.1875rem}
+.nav__chev{width:1rem;height:1rem;transition:transform .3s var(--ease-out)}
+.menu-open .nav__chev{transform:rotate(180deg)}
+
+/* Socials dropdown (right edge 0.8125rem inside the pill's right edge, 0.5rem below it) */
+.ddfx{top:calc(var(--nav-top) + var(--nav-h) + 0.5rem);left:calc(50% + var(--navw) / 2 - 0.8125rem - 8.3125rem);width:8.3125rem;
+  opacity:0;visibility:hidden;transform:translateY(-0.375rem) scale(.98);transform-origin:top right;
+  transition:opacity .22s ease,transform .28s var(--ease-out),visibility 0s linear .28s}
+.menu-open .ddfx{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+body.nav-off .ddfx{opacity:0;visibility:hidden}
+.ddfx--glass,.ddfx--tint{height:8.75rem;border-radius:0.75rem;pointer-events:none}
+.ddfx--glass{z-index:200;-webkit-backdrop-filter:blur(1rem) saturate(var(--nav-sat));backdrop-filter:blur(1rem) saturate(var(--nav-sat))}
+.has-refract .ddfx--glass[data-rf]{-webkit-backdrop-filter:url(#rf-box) blur(0.1875rem) saturate(var(--nav-sat));backdrop-filter:url(#rf-box) blur(0.1875rem) saturate(var(--nav-sat))}
+.ddfx--ink{z-index:210;mix-blend-mode:difference;color:var(--white)}
+.ddfx--tint{z-index:220;mix-blend-mode:screen;background:rgb(50,50,51);border:0.0625rem solid rgba(255,255,255,.13);
+  box-shadow:inset 0 0.0625rem 0 rgba(255,255,255,.34),inset 0 -0.0625rem 0 rgba(255,255,255,.12),inset 0 0 0.875rem rgba(255,255,255,.07)}
+.dd li{margin:0 0.625rem}
+.dd li + li{border-top:0.0625rem solid rgba(255,255,255,.14)}
+.dd a{display:flex;align-items:center;justify-content:space-between;height:2.125rem;padding:0 0.4375rem;font-size:1rem;line-height:1;transition:opacity .2s}
+.dd svg{width:0.6875rem;height:0.6875rem}
+.dd li:first-child a{height:2.1875rem}
+
+
+/* ── shared heading style (Transcity) ──────────────────────────────────── */
+.h-tc{font-family:var(--ff-tc);font-weight:400;font-size:4rem;line-height:1;font-synthesis:none;letter-spacing:0}
+
+/* ── Text roll on hover (buttons, nav links, dropdown items) ─────────────────────────────────────────────
+   js/main.js splits each label into letters. Every letter is a 1-line window (.rt__c) holding two identical
+   copies stacked (.rt__in); on hover the stack slides up one line so the twin rolls in from below, letter by
+   letter, left → right. The text is the only thing that moves: backgrounds are untouched.                  */
+.rt{position:relative;display:inline-flex;flex:none;height:1.3em;margin:-.15em 0;white-space:pre}
+.rt__sr{position:absolute;width:0.0625rem;height:0.0625rem;margin:-0.0625rem;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rt__vis{display:inline-flex;user-select:none;-webkit-user-select:none}
+.rt__c{display:block;flex:none;height:1.3em;width:calc(var(--w) * 1em);clip-path:inset(0 -.25em)}
+.rt__in{display:block}
+.rt__in > span{display:block;height:1.3em;line-height:1.3em;white-space:pre}
+.rt__sp{display:block;flex:none;height:1.3em;width:calc(var(--w) * 1em)}
+
+/* ═══ 01 HERO ═══ */
+.hero{position:relative;height:max(55.5625rem,100vh)}
+.hero__eyebrow{position:absolute;left:8.875rem;top:calc(50% - 6.03906rem);font-size:2rem;line-height:2.5rem;white-space:nowrap}
+.hero__title{position:absolute;left:6.75rem;top:calc(50% - 2.22656rem);font-weight:400;font-size:6rem;line-height:6rem;white-space:nowrap;margin:0}
+.hero__static{display:inline-block}
+.roll{position:absolute;left:41.75rem;top:-0.1875rem;width:40rem;height:6rem;font-family:var(--ff-ra);font-size:6rem;line-height:6rem}
+.roll__w{position:absolute;left:0;top:0;white-space:nowrap;color:var(--dim);
+  transform:translateY(calc(var(--p,0) * 5.375rem));opacity:1;
+  transition:transform .8s cubic-bezier(.65,0,.35,1),color .8s cubic-bezier(.65,0,.35,1),opacity .6s ease}
+.roll__w.is-main{color:var(--white)}
+.roll__w.is-hidden{opacity:0}
+.roll__w.no-anim{transition:none}
+
+/* ═══ 02 WORK ═══ */
+.work{position:relative;height:73.1875rem}
+.work__title{position:absolute;left:7rem;top:5.75rem}
+.work__grid{position:absolute;left:7rem;top:11.0625rem;width:76rem;display:grid;grid-template-columns:36.625rem 38rem;grid-template-rows:32.0625rem 18.9375rem;column-gap:1.375rem;row-gap:1.375rem}
+.card{display:block;position:relative;border-radius:0.5rem;background:#111;transition:transform .45s var(--ease-out),box-shadow .45s var(--ease-out)}
+.card img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.card:hover{transform:translateY(-0.25rem);box-shadow:0 1.125rem 2.5rem -1.125rem rgba(255,255,255,.18)}
+/* solid black panel behind the whole card grid (cards + the gaps between them), so the dotted grid / cursor glow never shows through */
+.work__grid::before{content:'';position:absolute;inset:-0.75rem;border-radius:1rem;background:#000;z-index:-1;pointer-events:none}
+
+/* ── Edge glow on the Work cards ───────────────────────────────────────────────────────────────────────────
+   js/main.js sets, per card, --gx/--gy (the point on the card's border nearest the pointer) and --gi (0..1, how close
+   the pointer is to that border, inside OR outside the card). Three SUBTLE layers: a thin warm-white rim that follows the
+   pointer (fading to a faint lavender along the border), a very soft, tight bloom just outside the card and a barely-there
+   haze just inside it. Nothing shows at rest. To make it stronger/weaker change the three `opacity` multipliers
+   (rim .95, bloom .6, haze .6); to change the tint edit the rgba() colours.                                              */
+.work__grid .card{--gi:0;--gx:50%;--gy:50%}
+.work__grid .card::before,.work__grid .card::after,.card__haze{visibility:hidden;pointer-events:none}
+.work__grid .card.gl-on::before,.work__grid .card.gl-on::after,.work__grid .card.gl-on .card__haze{visibility:visible}
+.work__grid .card::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:0.09375rem;z-index:3;opacity:min(1,calc(var(--gi) * .95));
+  background:radial-gradient(circle 11rem at var(--gx) var(--gy),#fff8ea 0,#f6e8cf 16%,rgba(190,180,245,.6) 46%,rgba(176,150,220,.28) 72%,rgba(176,150,220,0) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.work__grid .card::before{content:'';position:absolute;inset:-0.375rem;border-radius:0.875rem;z-index:-1;opacity:calc(var(--gi) * .6);filter:blur(0.75rem);
+  background:radial-gradient(ellipse 11rem 6.5rem at var(--gx) var(--gy),rgba(255,240,214,.5) 0,rgba(190,175,240,.2) 50%,rgba(190,175,240,0) 100%)}
+.card__haze{position:absolute;inset:0;border-radius:inherit;z-index:2;mix-blend-mode:screen;opacity:calc(var(--gi) * .6);
+  background:radial-gradient(ellipse 15rem 9rem at var(--gx) var(--gy),rgba(165,145,235,.14) 0,rgba(150,130,225,.05) 50%,rgba(150,130,225,0) 85%)}
+
+.work__col{display:flex;flex-direction:column;gap:1.375rem}
+.card--bookwallah{height:16.1875rem}
+.card--pulsehr{height:14.5rem}
+.work__grid .card--google-photos{grid-column:1;grid-row:1}
+.work__grid .work__col{grid-column:2;grid-row:1}
+/* second row — widths 705 + 22 + 489 = 1216 */
+.work__grid .card--bussense{grid-column:1 / 2;grid-row:2;width:44.0625rem}
+.work__grid .card--meow-vr{grid-column:2;grid-row:2;width:30.5625rem;justify-self:end}
+.work__more{position:absolute;left:50%;top:66.34375rem;transform:translateX(-50%)}
+
+/* ═══ 03 ABOUT ═══ */
+.about{position:relative;height:41.1875rem}
+.about__text{position:absolute;left:0;right:0;top:4.5625rem;text-align:center;font-size:1.25rem;line-height:1.625rem;letter-spacing:0.0025rem}
+.about__text p + p{margin-top:1.625rem}
+.ln{display:block;white-space:nowrap}
+.about__sub{position:absolute;left:0;right:0;top:22.125rem;text-align:center;font-weight:400;font-size:2rem;line-height:2.5rem;color:#ccc;margin:0}
+.marquee{position:absolute;left:7.1875rem;top:27.1875rem;width:75.625rem;height:4.625rem;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 20%,#000 83%,rgba(0,0,0,.22) 94%,transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 20%,#000 83%,rgba(0,0,0,.22) 94%,transparent 100%)}
+/* View area: 75.625rem wide, centred on the 90rem frame (7.1875rem in from each side). The fade mask below is relative to this box.
+   The strip is 2002x74 and has no trailing gap, so each copy gets a margin equal to the strip's own logo spacing (~4.125rem).
+   Loop = one strip + one gap. Speed ≈ 2.39rem/s (unchanged): 129.25rem / 54.1s. */
+.marquee__track{display:flex;align-items:center;width:max-content;height:100%;animation:marquee 54.1s linear infinite;will-change:transform}
+.marquee__track img{height:4.625rem;width:auto;max-width:none;flex:none;margin-right:4.125rem}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* scroll-linked letter reveal */
+[data-reveal] .ch{color:rgba(248,248,255,.2);transition:color .3s ease}
+[data-reveal] .ch.on{color:var(--white)}
+[data-reveal] .w{display:inline-block;white-space:nowrap}
+
+/* ═══ 04 AWAY FROM MY DESK ═══ */
+.away{position:relative;height:66.875rem;overflow-x:clip}
+.away__title{position:absolute;left:7rem;top:4.75rem}
+.away__photo{position:absolute;left:34.3125rem;top:11.375rem;width:22.8125rem;height:27.125rem;max-width:none}   /* cut-out used as-is: no shadow/glow beneath */
+.away__photo--under{filter:brightness(0);z-index:0}
+.away__photo:not(.away__photo--under){z-index:1}
+.spark{position:absolute;width:2.75rem;height:2.125rem;color:#e6e6ec;filter:drop-shadow(0 0 0.375rem rgba(255,255,255,.4))}
+.spark--a{left:61.125rem;top:11.0625rem}
+.spark--b{left:23.875rem;top:37.625rem}
+
+/* Each hobby card is one SVG (photo + soft glow + caption). The photo sits at (36.95,36.95) 99.5x122.5 inside it, centre (86.7,98.2).
+   --cx/--cy = where the photo's centre goes, --r = tilt, --s = scale (1 on desktop). */
+.hob{position:absolute;z-index:2;--r:0deg;--s:1;--ox:calc(5.41812rem * var(--s));--oy:calc(6.13938rem * var(--s));
+  width:calc(10.875rem * var(--s));left:calc(var(--cx) - var(--ox));top:calc(var(--cy) - var(--oy));pointer-events:none}
+.hob__in{transform-origin:var(--ox) var(--oy);transform:rotate(var(--r));transition:transform .45s var(--ease-out);will-change:transform}
+.hob img{display:block;width:100%;height:auto;max-width:none;-webkit-user-drag:none;user-select:none}
+.hob__hit{position:absolute;left:calc(2.25rem * var(--s));top:calc(2.25rem * var(--s));width:calc(6.3125rem * var(--s));height:calc(8.875rem * var(--s));pointer-events:auto;cursor:pointer}   /* hover area = photo + caption only */
+.hob:hover{z-index:6}
+.hob:has(.hob__hit:hover) .hob__in{transform:rotate(var(--r)) scale(1.5)}
+.hob--cats{--cx:13.75rem;--cy:16.6875rem;--r:-7deg}
+.hob--swimming{--cx:24.375rem;--cy:26.875rem;--r:-7deg}
+.hob--guitar{--cx:13.4375rem;--cy:36.3125rem;--r:-6deg}
+.hob--travelling{--cx:73rem;--cy:16.375rem;--r:6deg}
+.hob--basketball{--cx:62.3125rem;--cy:25.9375rem;--r:5.5deg}
+.hob--concerts{--cx:73.3125rem;--cy:36.5rem;--r:5deg}
+
+.away__hi{position:absolute;left:0;right:0;top:0;height:0}
+.away__hi-img{position:absolute;left:35.9375rem;top:44.5rem;width:18.0625rem;height:3.8125rem;max-width:none}
+.away__body{position:absolute;left:0;right:0;top:49.375rem;text-align:center;font-size:1.25rem;line-height:1.625rem;letter-spacing:0.00562rem}
+.away__body .gap{margin-top:1.625rem}
+
+/* ═══ 05 ACHIEVEMENTS ═══ */
+.ach{position:relative;height:46.5rem}
+.ach__title{position:absolute;left:7.1875rem;top:7.5rem}
+.ach__card{position:absolute;top:12.75rem;width:37.3125rem;height:28.25rem;border-radius:1.25rem;background:#151515;display:block;
+  transition:transform .45s var(--ease-out),box-shadow .45s var(--ease-out)}
+.ach__card--hci{left:7rem}
+.ach__card--ip{left:45.75rem}
+.ach__card:hover{transform:translateY(-0.625rem) scale(1.03);box-shadow:0 1.875rem 3.75rem -1.5rem rgba(255,255,255,.14)}
+.ach__img{position:absolute;left:2.3125rem;top:2.3125rem;width:32.6875rem;height:14.3125rem;object-fit:cover;border-radius:0.875rem}
+.ach__logo{position:absolute;top:18.375rem;height:8.25rem;width:auto;max-width:none}
+.ach__logo--hci{left:2.375rem}
+.ach__logo--lion{left:3.625rem}
+.ach__copy{position:absolute;left:12.5625rem;top:18.1875rem;width:22.625rem}
+.ach__card--ip .ach__copy{left:11.5rem;width:24.375rem}
+.ach__copy h3{font-weight:700;font-size:2rem;line-height:2.5rem;color:var(--white)}
+.ach__copy p{margin-top:0.8125rem;font-size:1.25rem;line-height:1.65625rem}
+
+/* ═══ 06 PLAYGROUND ═══ */
+.play{position:relative;height:52rem}
+.play__title{position:absolute;left:7rem;top:9.5rem}
+.ring{position:absolute;left:0;right:0;top:12.25rem;height:23.125rem;perspective:100rem;perspective-origin:50% 50%;overflow:hidden;
+  touch-action:pan-y;--ringk:1;user-select:none;-webkit-user-select:none}
+.ring__stage{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.ring__card{position:absolute;left:-10.28125rem;top:-6.5625rem;width:20.5625rem;height:13.125rem;display:block;border-radius:0.1875rem;
+  backface-visibility:hidden;will-change:transform,opacity;user-select:none;-webkit-user-drag:none;background:#0a0a0a}
+.ring__card img{width:100%;height:100%;object-fit:cover;pointer-events:none;border-radius:inherit}
+/* hover glow: a blurred, colour-matched copy of the card's own artwork sits right behind it and fades in while the cursor is on the card
+   (any card). Kept deliberately tight + soft: spread ≈ blur, no oversize. --glow-img is set from js/main.js.
+   Hover-capable devices only, so a tap on a phone doesn't leave it stuck on. */
+.ring__card::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:0.25rem;pointer-events:none;
+  background:var(--glow-img) center/cover no-repeat;filter:blur(0.9rem) saturate(1.3) brightness(1.1);opacity:0;transition:opacity .4s ease}
+@media (hover:hover){ .ring__card:hover::before{opacity:.6} }
+.ring.is-dragging,.ring.is-dragging *{cursor:grabbing !important}
+.play__info{position:absolute;left:0;right:0;top:32.9rem;text-align:center;transition:opacity .28s ease,transform .28s ease;
+  z-index:2;pointer-events:none;   /* sits above the ring's (empty) lower edge; only the title itself takes clicks, below */
+  --pt:.9}   /* --pt = text scale of the project detail (name / meta / description): 0.9x. Spacing below is fitted to the design reference */
+.play__info.is-out{opacity:0;transform:translateY(0.5rem)}
+.play__name{font-size:calc(3rem * var(--pt));line-height:3.2rem;margin:0 auto;width:fit-content;pointer-events:auto}
+.play__meta{margin-top:0;font-size:calc(1.25rem * var(--pt));line-height:1.45rem}
+.play__desc{margin:1.55rem auto 0;max-width:calc(32.5rem * var(--pt));font-size:calc(1.25rem * var(--pt));line-height:1.425rem}
+
+/* ═══ 07 CONTACT ═══ */
+.contact{height:50.25rem;overflow:hidden}
+.contact__lead{position:absolute;left:0;right:0;top:4.4375rem;text-align:center;font-size:2rem;line-height:2.5rem;letter-spacing:-0.0125rem;color:#575759}
+.contact__lead b{color:var(--white)}
+.contact__mail{position:absolute;left:50%;top:8.8125rem;transform:translateX(-50%);font-weight:700;font-size:2rem;line-height:2.5rem;letter-spacing:-.01em;
+  color:var(--blue);text-decoration:underline;text-decoration-thickness:0.125rem;text-underline-offset:0.3125rem;white-space:nowrap;transition:opacity .2s}
+.contact__mail:hover{opacity:.8}
+.contact__btns{position:absolute;left:0;right:0;top:16.0625rem;height:3.375rem}
+.contact__btns .svgbtn{position:absolute;top:0.1875rem}
+.contact__btns .svgbtn:nth-child(1){left:31.6875rem}
+.contact__btns .svgbtn:nth-child(2){left:47.9375rem}
+.contact__cat{position:absolute;left:40.4375rem;top:23.375rem;width:9.125rem;height:5.5rem;border-radius:0.5rem;object-fit:cover}
+.btn--top{position:absolute;left:73.1875rem;top:27.75rem;height:2.125rem;padding:0 1.375rem 0 1.3125rem;gap:0.75rem}
+.contact__rule{position:absolute;left:3.875rem;right:3.8125rem;top:33rem;width:auto;height:0;border:0;border-top:0.125rem solid rgba(255,255,255,.17);margin:0}
+.contact__mark{position:absolute;left:0;top:32.5rem;width:90rem;height:17.75rem;user-select:none;pointer-events:none;
+  --ff-wordmark:var(--ff-tc)}   /* ← swap to var(--ff-ra) to render the wordmark in Roman Avenue instead */
+.wm{position:absolute;top:0;font-family:var(--ff-wordmark);font-size:17.8125rem;line-height:17.8125rem;letter-spacing:-0.075rem;white-space:nowrap;
+  background:linear-gradient(180deg,rgb(11,43,59) 13%,rgb(1,4,6) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.wm--a{left:1.53125rem}
+.wm--b{left:53.75rem}
+.wm__dot{position:absolute;left:50.25rem;top:12rem;width:2.375rem;height:2.5rem;border-radius:50%;background:rgb(3,11,15)}
+
+
+/* ═══ Cat game (js/cats.js) ═══════════════════════════════════════════════════════════════════════════
+   Text-made cats float in the empty gaps below the bio / below the Achievements cards. Click one to pop it (+10 points);
+   3 pops = a win. Messages use the same dark pill style as the design.                                                */
+.catlayer{position:absolute;left:0;top:0;width:100%;height:100%;z-index:6;pointer-events:none}
+.cat{position:absolute;left:0;top:0;display:block;margin:0;padding:0.875rem 1rem;border:0;background:none;color:var(--white);
+  font-family:var(--ff-body),'Cat Tail';font-weight:400;font-size:1.75rem;line-height:1;pointer-events:auto;cursor:pointer;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;outline:none;
+  transition:opacity .5s ease;will-change:transform}
+.cat.is-leaving{opacity:0;pointer-events:none}
+.cat__sprite{display:flex;align-items:flex-end;pointer-events:none}
+.cat__body{display:flex;flex-direction:column;align-items:center}
+.cat__ears{display:block;white-space:pre;line-height:.5;letter-spacing:-.04em;margin:0 0 .12em .02em}
+.cat__face{display:block;white-space:pre;line-height:1}
+.cat__tail{display:block;font-family:'Cat Tail',var(--ff-body);font-size:1.28em;line-height:1;margin-left:-.06em;transform:translateY(.1em)}
+.cat--b .cat__face{display:flex;align-items:center}
+.cat--b .cat__eye{display:block;font-size:1.5em;font-weight:400;line-height:.8;transform:translateY(.06em)}
+.cat--b .cat__par{display:block;transform:translateY(.1em)}
+.cat--b .cat__dot{display:block;transform:translateY(.28em)}
+.cat.is-popped{pointer-events:none}
+.catmsg{position:absolute;left:0;top:0;height:2.1875rem;padding:0 1.375rem;border-radius:62.4375rem;background:rgb(30,30,30);color:#e8e8ec;
+  font:400 1.25rem/2.1875rem var(--ff-body);white-space:nowrap;pointer-events:none;box-shadow:0 0.625rem 1.625rem -0.75rem rgba(0,0,0,.7)}
+.catmsg--hint{opacity:0;animation:catHint 1.9s ease both}
+.catmsg--score{opacity:0;animation:catScore 1.9s cubic-bezier(.2,.7,.3,1) both}
+.catmsg--win{height:2.875rem;padding:0 1.875rem;font-size:1.5625rem;line-height:2.875rem;color:#fff;opacity:0;box-shadow:0 0 0 0.0625rem rgba(42,161,224,.55),0 0 2.5rem rgba(42,161,224,.4);
+  animation:catWin 4s cubic-bezier(.2,.9,.25,1) both}
+.catmsg--win b{font-weight:700;color:var(--blue)}
+@keyframes catHint{0%{opacity:0;transform:translate(-50%,0.5rem) scale(.94)}13%{opacity:1;transform:translate(-50%,0) scale(1)}80%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-0.1875rem) scale(.98)}}
+@keyframes catScore{0%{opacity:0;transform:translate(-50%,0) scale(.72)}9%{opacity:1;transform:translate(-50%,-0.625rem) scale(1.08)}18%{opacity:1;transform:translate(-50%,-1rem) scale(1)}100%{opacity:0;transform:translate(-50%,-4.5rem) scale(1)}}
+@keyframes catWin{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}9%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}16%{transform:translate(-50%,-50%) scale(.97)}22%{transform:translate(-50%,-50%) scale(1)}84%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+.catbit{position:absolute;left:0;top:0;pointer-events:none;color:var(--white);will-change:transform,opacity}
+@media (prefers-reduced-motion:reduce){.catmsg--score,.catmsg--hint,.catmsg--win{animation-duration:.01s}}
+
+/* where a section heading lands after a nav click: ink top = 9.8125rem (2.0625rem below the nav), identical for every section */
+#work,.ach__title{scroll-margin-top:9.25rem}
+#about,#playground{scroll-margin-top:9.3125rem}
+
+/* ═══════════════════ MOBILE (≤ 51.25rem) — 24.375rem design ═══════════════════ */
+@media (max-width:820px){
+  html{font-size:calc(100vw / 24.375)}
+  body{font-size:0.9375rem}
+  .frame{width:100%;max-width:none}
+  :root{--nav-top:0.875rem;--nav-h:2.875rem;--navw:20.625rem}
+  .stick--resume{top:calc(100svh - 4.625rem);height:3rem;padding-right:1rem}
+  .navfx--ink{padding:0 1rem 0 1.125rem;gap:0.8125rem}
+  .nav__link{font-size:0.84375rem}
+  .nav__dp{width:2.125rem;height:2.125rem;margin:0}
+  .nav__dp--slot{margin:0}
+  .nav__social{gap:0.375rem}
+  .nav__chev{width:0.6875rem;height:0.6875rem}
+  .ddfx{top:calc(var(--nav-top) + var(--nav-h) + 0.375rem);left:calc(50% + var(--navw) / 2 - 0.375rem - 7.5rem);width:7.5rem}
+  .ddfx--glass,.ddfx--tint{height:9rem}
+  .dd a{height:2.25rem;font-size:0.875rem}
+  .dd li:first-child a{height:2.25rem}
+  .h-tc{font-size:2.5rem}
+
+  .hero{height:max(46.25rem,100svh)}
+  .hero__eyebrow{left:1.5rem;top:calc(50% - 5.625rem);font-size:1.0625rem;line-height:1.5rem}
+  .hero__title{left:1.25rem;top:calc(50% - 3.5rem);font-size:2.75rem;line-height:3.25rem}
+  .roll{left:0;top:3.375rem;width:21.875rem;height:3.25rem;font-size:2.875rem;line-height:3.25rem}
+  .roll__w{transform:translateY(calc(var(--p,0) * 3.25rem))}
+  .roll__w.is-above{opacity:0}
+
+  .work{height:auto;padding:6.25rem 0 3.75rem}
+  .work__title{position:static;margin:0 0 1.375rem 1.5rem}
+  .work__grid{position:relative;left:auto;top:auto;width:auto;margin:0 1.5rem;display:flex;flex-direction:column;gap:0.875rem}
+  .work__col{gap:0.875rem}
+  .work__grid .card{width:100%!important;height:auto!important;aspect-ratio:var(--ar)}
+  .card--google-photos{--ar:586/513}.card--bookwallah{--ar:608/259}.card--pulsehr{--ar:608/232}.card--bussense{--ar:705/303}.card--meow-vr{--ar:489/303}
+  .work__more{position:static;display:flex;transform:none;margin:1.75rem auto 0;width:fit-content}
+  .work__more:hover{transform:none}
+
+  .about{height:auto;padding:1.875rem 1.5rem 4.375rem}
+  .about__text{position:static;font-size:1rem;line-height:1.375rem;padding:0}
+  .about__text p + p{margin-top:1.375rem}
+  .ln{display:inline;white-space:normal}
+  .about__sub{position:static;margin-top:3.5rem;font-size:1.15625rem;line-height:1.625rem}
+  .marquee{position:relative;left:auto;top:auto;width:100%;height:3.9rem;margin-top:1.5rem}
+  .marquee__track img{height:3.9rem;margin-right:3.48125rem}
+
+  .away{height:51.875rem}
+  .away__title{left:1.5rem;top:2.5rem}
+  .away__photo{left:6.0625rem;top:8.5rem;width:12.25rem;height:14.5625rem}
+  #work,.ach__title{scroll-margin-top:5.375rem}#about,#playground{scroll-margin-top:5.375rem}
+  .spark{width:1.875rem;height:1.4375rem}.spark--a{left:18.75rem;top:7.875rem}.spark--b{left:3.75rem;top:22rem}
+  .hob{--s:.64;left:calc(var(--mx) - var(--ox));top:calc(var(--my) - var(--oy))}
+  .hob--cats{--mx:3.5rem;--my:10.9375rem}.hob--swimming{--mx:6.25rem;--my:18.125rem}.hob--guitar{--mx:3.5rem;--my:23.75rem}
+  .hob--travelling{--mx:20.875rem;--my:10.9375rem}.hob--basketball{--mx:18.25rem;--my:18.125rem}.hob--concerts{--mx:20.875rem;--my:23.75rem}
+  .away__hi-img{left:5.5rem;top:28.125rem;width:13.5625rem;height:2.85938rem}
+  .away__body{top:32.5rem;padding:0 1.5rem;font-size:0.9375rem;line-height:1.375rem}
+  .away__body .gap{margin-top:1.375rem}
+
+  .ach{height:auto;padding:1.875rem 1.5rem 3.75rem}
+  .ach__title{position:static;margin:0 0 1.375rem}
+  .ach__card{position:relative;top:auto;left:auto!important;width:100%;height:auto;padding:1rem 1rem 1.375rem;margin-bottom:1rem;border-radius:1rem}
+  .ach__card:hover{transform:none}
+  .ach__img{position:static;width:100%;height:auto;aspect-ratio:523/229;border-radius:0.625rem}
+  .ach__logo{position:absolute;top:auto;bottom:1.375rem;height:4.75rem}
+  .ach__logo--hci{left:1rem}.ach__logo--lion{left:1.5rem}
+  .ach__copy,.ach__card--ip .ach__copy{position:static;left:auto;width:auto;margin:1rem 0 0 6.75rem;min-height:6rem}
+  .ach__copy h3{font-size:1.375rem;line-height:1.75rem}
+  .ach__copy p{margin-top:0.375rem;font-size:0.875rem;line-height:1.1875rem}
+
+  .play{height:40rem}
+  .play__title{left:1.5rem;top:1.875rem}
+  .ring{top:6.25rem;height:14.375rem;--ringk:.62}
+  .ring__card{left:-6.375rem;top:-4.0625rem;width:12.75rem;height:8.125rem;border-radius:0.125rem}
+  .play__info{top:21.875rem;padding:0 1.5rem}
+  .play__name{font-size:calc(2rem * var(--pt));line-height:2.25rem}
+  .play__meta{margin-top:0.625rem;font-size:calc(0.9375rem * var(--pt));line-height:1.3rem}
+  .play__desc{margin-top:0.875rem;font-size:calc(0.9375rem * var(--pt));line-height:1.1875rem}
+
+  .contact{height:40rem}
+  .contact__lead{top:3.125rem;font-size:1.09375rem;line-height:1.625rem;padding:0 0.5rem;letter-spacing:0}
+  .contact__mail{top:7rem;font-size:1.125rem;line-height:1.625rem;text-underline-offset:0.25rem;text-decoration-thickness:0.09375rem}
+  .contact__btns{top:10.625rem}
+  .contact__btns .svgbtn:nth-child(1){left:calc(50% - 11rem)}
+  .contact__btns .svgbtn:nth-child(2){left:calc(50% + 0.5rem)}
+  .contact__cat{left:7.625rem;top:16.25rem;width:9.125rem}
+  .btn--top{left:auto;right:1.5rem;top:23.75rem;font-size:0.875rem;height:2rem;padding:0 1rem;gap:0.5rem}
+  .contact__rule{left:1rem;right:1rem;top:27.875rem}
+  .contact__mark{top:27.75rem;width:100%;height:5rem}
+  .wm{font-size:4.825rem;line-height:4.825rem;letter-spacing:-0.01875rem}
+  .wm--a{left:0.4125rem}.wm--b{left:14.55625rem}
+  .wm__dot{left:13.60625rem;top:3.25rem;width:0.64375rem;height:0.675rem}
+
+  .cat{font-size:1.25rem;padding:0.75rem 0.875rem}
+  .catmsg{height:1.75rem;padding:0 1rem;font-size:0.9375rem;line-height:1.75rem}
+  .catmsg--win{height:2.375rem;padding:0 1.375rem;font-size:1.1875rem;line-height:2.375rem}
+}
+
+/* ── "View case study" cursor over work cards, achievements and playground cards (the SVG is the cursor itself, not a button).
+   Hotspot is the centre of the pill; `pointer` is the fallback if the SVG cursor is unsupported. */
+.card,.card *,.ach__card,.ach__card *,.ring__card,.ring__card *{
+  cursor:url("../assets/img/cursors/view-case-study.svg") 59 11,pointer}

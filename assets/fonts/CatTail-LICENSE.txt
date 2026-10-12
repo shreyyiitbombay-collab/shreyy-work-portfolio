@@ -1,0 +1,3 @@
+CatTail.woff2 is a one-glyph subset (U+0283, "ʃ") of Noto Sans, used for the cats' tails in the small game.
+Noto Sans is licensed under the SIL Open Font License 1.1 — https://openfontlicense.org
+Copyright 2012 Google Inc. All Rights Reserved.
